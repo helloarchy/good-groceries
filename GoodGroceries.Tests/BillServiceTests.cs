@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 using GoodGroceries.Models;
 using GoodGroceries.Services;
+using GoodGroceries.Tests.Fixtures;
 
 using Xunit;
 
@@ -10,17 +10,28 @@ namespace GoodGroceries.Tests
 {
     public class BillServiceTests
     {
-        private readonly BillServiceFixtures _fixtures = new();
+        private static readonly BillServiceFixtures Fixtures = new();
 
         [Fact]
         public void UpdateBasketQuantity_NoProduct_DoesNothing()
         {
             var billService = new BillService();
             billService.UpdateBasketItemQuantity(null, 0);
-            
+
             Assert.Empty(billService.Basket);
         }
-        
+
+        [Theory]
+        [ClassData(typeof(UpdateBasketQuantityTestData))]
+        public void UpdateBasketQuantity_ManyProducts_AddsAll(Product product, int quantity)
+        {
+            var billService = new BillService();
+            billService.UpdateBasketItemQuantity(product, quantity);
+
+            Assert.NotEmpty(billService.Basket);
+            Assert.Contains(billService.Basket, item => item.Product == product && item.Quantity == quantity);
+        }
+
         [Fact]
         public void GetTotalBeforeOffers_NoProducts_ReturnsZero()
         {
@@ -30,13 +41,13 @@ namespace GoodGroceries.Tests
 
             Assert.Equal(expected, actual);
         }
-        
+
         [Fact]
         public void GetTotalBeforeOffers_WithProducts_ReturnsTotal()
         {
             var billService = new BillService();
-            billService.UpdateBasketItemQuantity(_fixtures.Products[0], 2);
-            
+            billService.UpdateBasketItemQuantity(Fixtures.Products[0], 2);
+
             var expected = 3.0M;
             var actual = billService.GetTotalBeforeOffers();
 

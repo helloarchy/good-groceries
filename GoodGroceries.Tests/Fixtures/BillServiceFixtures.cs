@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using GoodGroceries.Models;
-using GoodGroceries.Services;
 
-namespace GoodGroceries.Tests
+namespace GoodGroceries.Tests.Fixtures
 {
     public class BillServiceFixtures
     {
