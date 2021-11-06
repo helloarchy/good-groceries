@@ -1,4 +1,4 @@
-﻿namespace GoodGroceries
+﻿namespace GoodGroceries.Models
 {
     public class Product
     {
