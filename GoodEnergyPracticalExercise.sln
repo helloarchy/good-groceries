@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoodGroceries", "GoodGroceries\GoodGroceries.csproj", "{9EA8E9D6-E32F-4FB9-8CD5-BAB8A2179DDD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoodGroceries.Tests", "GoodGroceries.Tests\GoodGroceries.Tests.csproj", "{932FF3C3-0B0F-43EE-B3C8-71E43AA62BC0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9EA8E9D6-E32F-4FB9-8CD5-BAB8A2179DDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EA8E9D6-E32F-4FB9-8CD5-BAB8A2179DDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EA8E9D6-E32F-4FB9-8CD5-BAB8A2179DDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EA8E9D6-E32F-4FB9-8CD5-BAB8A2179DDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{932FF3C3-0B0F-43EE-B3C8-71E43AA62BC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{932FF3C3-0B0F-43EE-B3C8-71E43AA62BC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{932FF3C3-0B0F-43EE-B3C8-71E43AA62BC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{932FF3C3-0B0F-43EE-B3C8-71E43AA62BC0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
