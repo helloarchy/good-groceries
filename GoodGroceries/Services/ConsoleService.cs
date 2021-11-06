@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Threading;
 
 using GoodGroceries.Models;
 
@@ -10,36 +8,45 @@ namespace GoodGroceries.Services
 {
     public class ConsoleService
     {
-        private static List<ConsoleOption> _groceryOptions;
-        private static List<ConsoleOption> _menuOptions;
-        private static List<BasketItem> _basket = new();
-        private static string _headerMainMenu = "Welcome to GoodGroceries!";
-        private static string _headerGroceryList = "Grocery List";
-        private static string _headerCheckoutBill = "Your final bill";
+        private readonly BillService _billService;
+        private readonly IEnumerable<Product> _products;
+        private readonly IEnumerable<SpecialOffer> _specialOffers;
+        private List<ConsoleOption> _groceryOptions;
+        private List<ConsoleOption> _menuOptions;
+        private readonly string HeaderMainMenu = "Welcome to GoodGroceries!";
+        private readonly string HeaderGroceryList = "Grocery List";
+        private readonly string HeaderCheckoutBill = "Your final bill";
 
-        public void GetInteractiveInput(IEnumerable<Product> products, IEnumerable<SpecialOffer> specialOffers)
+        public ConsoleService(BillService billService, IEnumerable<Product> products,
+            IEnumerable<SpecialOffer> specialOffers)
         {
-            // Create main menu
+            _billService = billService;
+            _products = products;
+            _specialOffers = specialOffers;
+        }
+
+        public void GetInteractiveInput()
+        {
+            // Create main menu option choices
             _menuOptions = new List<ConsoleOption>
             {
-                new("Add groceries", () => GetMenuInput(_headerGroceryList, _groceryOptions)),
-                new("Show bill", () => ShowBill(specialOffers)),
+                new("Add groceries", () => GetMenuInput(HeaderGroceryList, _groceryOptions)),
+                new("Show bill", () => ShowBill(HeaderCheckoutBill)),
                 new("Quit", () => Environment.Exit(0))
             };
 
             // Create shopping list items
-            _groceryOptions = products.Select(product =>
+            _groceryOptions = _products.Select(product =>
             {
-                _basket.Add(new BasketItem { Product = product, Quantity = 0 });
                 return new ConsoleOption(
                     $"{product.Name} ({product.Price:C} each)",
                     () => GetQuantityInput(product)
                 );
             }).ToList();
-            _groceryOptions.Add(new ConsoleOption("Go back", () => GetMenuInput(_headerMainMenu, _menuOptions)));
+            _groceryOptions.Add(new ConsoleOption("Go back", () => GetMenuInput(HeaderMainMenu, _menuOptions)));
 
             // Show the main menu
-            GetMenuInput(_headerMainMenu, _menuOptions);
+            GetMenuInput(HeaderMainMenu, _menuOptions);
         }
 
         private void GetMenuInput(string header, List<ConsoleOption> options)
@@ -91,46 +98,47 @@ namespace GoodGroceries.Services
         /**
          * Show the bill, and handle input
          */
-        private void ShowBill(IEnumerable<SpecialOffer> specialOffers)
+        private void ShowBill(string header)
         {
-            IEnumerable<SpecialOffer> offers = specialOffers.ToList();
-            var billService = new BillService(_basket, offers);
-
             Console.Clear();
+            Console.WriteLine($"\n{header}");
 
             // Totals for each item
             Console.WriteLine(new String('=', 60));
             Console.WriteLine("{0,-15} {1,-15} {2,-15} {3,-15}", "Product", "Price", "Quantity", "Total");
-            foreach (var basketItem in _basket.Where(item => item.Quantity > 0))
+            foreach (var basketItem in _billService.Basket)
             {
-                var itemTotalPrice = $"{BillService.GetTotalForItem(basketItem):C}";
+                var itemTotalPrice = $"{basketItem.TotalPrice:C}";
                 Console.WriteLine("{0,-15} {1,-15} {2,-15} {3,-15}", basketItem.Product.Name,
                     $"{basketItem.Product.Price:C}",
                     basketItem.Quantity, itemTotalPrice);
             }
 
             // Subtotal of all before offers
+            var totalBeforeOffers = _billService.GetTotalBeforeOffers();
             Console.WriteLine(new String('-', 60));
-            Console.WriteLine("{0,60}", $"Subtotal: {billService.GetTotalBeforeOffers():C}");
-            
+            Console.WriteLine("{0,60}", $"Subtotal: {totalBeforeOffers:C}");
+
             // Savings for each offer
-            foreach (SpecialOffer specialOffer in offers)
+            foreach (SpecialOffer specialOffer in _specialOffers)
             {
-                var savings = billService.GetOfferSavings(specialOffer);
+                var savings = _billService.GetTotalDiscountForOffer(specialOffer);
                 if (savings > 0)
                 {
-                    Console.WriteLine("{0,-50} {1,10}", specialOffer.Description, $"{-savings:C}");
+                    Console.WriteLine("{0,-53} {1,-7}", specialOffer.Description, $"{-savings:C}");
                 }
             }
-            
+
             // Total for all savings
-            Console.WriteLine("{0,60}", $"Total savings: {-billService.GetTotalSavings():C}");
-            
+            var totalSavings = _billService.GetTotalSavings();
+            Console.WriteLine("{0,60}", $"Total savings: {-totalSavings:C}");
+
             // Total
+            var totalAfterDiscounts = totalBeforeOffers - totalSavings;
             Console.WriteLine(new String('-', 60));
-            Console.WriteLine("{0,60}", $"Total to pay: {billService.GetTotalAfterSavings():C}");
+            Console.WriteLine("{0,60}", $"Total to pay: {totalAfterDiscounts:C}");
             Console.WriteLine(new String('=', 60));
-            
+
             // Return to main menu
             Console.WriteLine("Press enter to return");
             ConsoleKeyInfo keyInfo;
@@ -139,28 +147,28 @@ namespace GoodGroceries.Services
                 keyInfo = Console.ReadKey();
                 Console.WriteLine("\nPress enter to return");
             } while (keyInfo.Key != ConsoleKey.Enter);
-            GetMenuInput(_headerMainMenu, _menuOptions);
+
+            GetMenuInput(HeaderMainMenu, _menuOptions);
         }
 
-        // Get the input for the product quantity
+        /// <summary>
+        /// Get the input for the product quantity
+        /// </summary>
         void GetQuantityInput(Product product)
         {
-            int quantity;
             Console.Clear();
             Console.WriteLine("\nHow many would you like to purchase?");
+
+            int quantity;
             while (!int.TryParse(Console.ReadLine(), out quantity))
             {
                 Console.WriteLine("Please enter a number: ");
             }
 
-            var basketItem = _basket.Find(basketItem => basketItem.Product == product);
-            if (basketItem != null)
-            {
-                basketItem.Quantity = quantity;
-            }
+            _billService.UpdateBasketItemQuantity(product, quantity);
 
             // Back to main menu
-            GetMenuInput(_headerMainMenu, _menuOptions);
+            GetMenuInput(HeaderMainMenu, _menuOptions);
         }
 
         static void WriteMenu(string header, List<ConsoleOption> options, ConsoleOption selectedOption)

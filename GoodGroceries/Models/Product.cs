@@ -1,4 +1,6 @@
-﻿namespace GoodGroceries.Models
+﻿using System.Security.Cryptography.X509Certificates;
+
+namespace GoodGroceries.Models
 {
     public class Product
     {

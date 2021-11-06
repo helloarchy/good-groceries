@@ -11,7 +11,7 @@
         /// <summary>
         /// The number by which the total price is divided to give the total discount amount
         /// </summary>
-        public decimal DiscountDivisor { get; set; }
+        public decimal DiscountMultiplier { get; set; }
         public Product DiscountedProduct { get; set; }
     }
 }
