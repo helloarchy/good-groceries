@@ -25,6 +25,10 @@ namespace GoodGroceries.Services
             _specialOffers = specialOffers;
         }
 
+        /// <summary>
+        /// Start an interactive console session for the user, with different menus for
+        /// navigation and choice input.
+        /// </summary>
         public void GetInteractiveInput()
         {
             // Create main menu option choices
@@ -35,7 +39,7 @@ namespace GoodGroceries.Services
                 new("Quit", () => Environment.Exit(0))
             };
 
-            // Create shopping list items
+            // Create shopping list product choice for each product item
             _groceryOptions = _products.Select(product =>
             {
                 return new ConsoleOption(
@@ -43,23 +47,25 @@ namespace GoodGroceries.Services
                     () => GetQuantityInput(product)
                 );
             }).ToList();
-            _groceryOptions.Add(new ConsoleOption("Go back", () => GetMenuInput(HeaderMainMenu, _menuOptions)));
+            _groceryOptions.Add(new ConsoleOption("Go back",
+                () => GetMenuInput(HeaderMainMenu, _menuOptions)));
 
             // Show the main menu
             GetMenuInput(HeaderMainMenu, _menuOptions);
         }
 
+        /// <summary>
+        /// Write the interactive menu and read key input. Move the menu selection up and down,
+        /// and invoke action on enter key press.
+        /// </summary>
         private void GetMenuInput(string header, List<ConsoleOption> options)
         {
             WriteMenu(header, options, options[0]);
-
-            // Store key info in here
             ConsoleKeyInfo keyInfo;
             var index = 0;
             do
             {
                 keyInfo = Console.ReadKey();
-
                 switch (keyInfo.Key)
                 {
                     case ConsoleKey.DownArrow:
@@ -95,9 +101,9 @@ namespace GoodGroceries.Services
             WriteMenu(header, options, options[0]);
         }
 
-        /**
-         * Show the bill, and handle input
-         */
+        /// <summary>
+        /// Show the bill, with a detailed breakdown of prices, quantities, discounts, and totals.
+        /// </summary>
         private void ShowBill(string header)
         {
             Console.Clear();
@@ -171,6 +177,10 @@ namespace GoodGroceries.Services
             GetMenuInput(HeaderMainMenu, _menuOptions);
         }
 
+        /// <summary>
+        /// Write the menu showing the selection next to the current choice. This menu is
+        /// rewritten everytime the user moves the selection up or down.
+        /// </summary>
         static void WriteMenu(string header, List<ConsoleOption> options, ConsoleOption selectedOption)
         {
             Console.Clear();
