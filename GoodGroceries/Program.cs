@@ -11,7 +11,7 @@ namespace GoodGroceries
         /// Create the test products and special offers, initialise the billing service
         /// and start the interactive console session to run the user experience.
         /// </summary>
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             (List<Product> products, List<SpecialOffer> specialOffers) = SeedProductsAndOffers();
             var billService = new BillService();
@@ -54,7 +54,7 @@ namespace GoodGroceries
                 Description = "Get a third off butter!",
                 RequiredProduct = butter,
                 RequiredQuantity = 1,
-                DiscountMultiplier = 2M / 3M, // 0.66...
+                DiscountMultiplier = 1M / 3M, // 0.33...
                 DiscountedProduct = butter
             };
 

@@ -15,6 +15,10 @@ namespace GoodGroceries.Services
             Basket = new List<BasketItem>();
         }
 
+        /// <summary>
+        /// Get the total price across all items in the basket before any offers
+        /// are applied.
+        /// </summary>
         public decimal GetTotalBeforeOffers()
         {
             return Basket.Aggregate(0M, (acc, item) => (acc + item.TotalPrice));
@@ -32,20 +36,23 @@ namespace GoodGroceries.Services
 
             /* Apply discount only if the item is in the basket along with the product to apply the
              * discount to (not always the same), and the required quantity is met. */
-            if (requiredItem != null && requiredItem.Quantity >= specialOffer.RequiredQuantity &&
-                discountedItem != null && discountedItem.Quantity > 0)
+            if (requiredItem == null || requiredItem.Quantity < specialOffer.RequiredQuantity ||
+                discountedItem is not { Quantity: > 0 })
             {
-                // Only apply discount to the required quantity
-                var quotient = Math.DivRem(requiredItem.Quantity, specialOffer.RequiredQuantity, out _);
-                var savings = (quotient * discountedItem.Product.Price) * specialOffer.DiscountMultiplier;
-                discountedItem.TotalDiscount = savings;
-
-                return savings;
+                return 0M;
             }
 
-            return 0M;
+            // Only apply discount to the required quantity
+            var quotient = Math.DivRem(requiredItem.Quantity, specialOffer.RequiredQuantity, out _);
+            var savings = (quotient * discountedItem.Product.Price) * specialOffer.DiscountMultiplier;
+            discountedItem.TotalDiscount = savings;
+
+            return savings;
         }
 
+        /// <summary>
+        /// Get the total savings across all items in the basket
+        /// </summary>
         public decimal GetTotalSavings()
         {
             return Basket.Aggregate(0M, (acc, item) => acc + item.TotalDiscount);
@@ -69,7 +76,7 @@ namespace GoodGroceries.Services
                     Basket.Remove(basketItem);
                 }
             }
-            else if (product != null && quantity > 0) 
+            else if (product != null && quantity > 0)
             {
                 Basket.Add(new BasketItem
                 {

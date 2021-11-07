@@ -13,9 +13,9 @@ namespace GoodGroceries.Services
         private readonly IEnumerable<SpecialOffer> _specialOffers;
         private List<ConsoleOption> _groceryOptions;
         private List<ConsoleOption> _menuOptions;
-        private readonly string HeaderMainMenu = "Welcome to GoodGroceries!";
-        private readonly string HeaderGroceryList = "Grocery List";
-        private readonly string HeaderCheckoutBill = "Your final bill";
+        private const string HeaderMainMenu = "Welcome to GoodGroceries!";
+        private const string HeaderGroceryList = "Grocery List";
+        private const string HeaderCheckoutBill = "Your final bill";
 
         public ConsoleService(BillService billService, IEnumerable<Product> products,
             IEnumerable<SpecialOffer> specialOffers)
@@ -58,7 +58,7 @@ namespace GoodGroceries.Services
         /// Write the interactive menu and read key input. Move the menu selection up and down,
         /// and invoke action on enter key press.
         /// </summary>
-        private void GetMenuInput(string header, List<ConsoleOption> options)
+        private static void GetMenuInput(string header, List<ConsoleOption> options)
         {
             WriteMenu(header, options, options[0]);
             ConsoleKeyInfo keyInfo;
